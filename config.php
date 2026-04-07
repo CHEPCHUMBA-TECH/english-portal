@@ -1,21 +1,16 @@
 <?php
 /**
  * Configuration Manager
- * Loads environment variables from .env file
+ * Loads environment variables from .env file (local) or Render environment (production)
  */
 
 // Define base path
 define('BASE_PATH', __DIR__);
 
-// Load .env file
+// Try to load .env file if it exists (local development)
 $env_file = BASE_PATH . '/.env';
-if (!file_exists($env_file)) {
-    die("Error: .env file not found. Please copy .env.example to .env and configure it.");
-}
-
-// Parse .env file
-function load_env($file) {
-    $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+if (file_exists($env_file)) {
+    $lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         if (strpos($line, '#') === 0) continue; // Skip comments
         if (strpos($line, '=') === false) continue;
@@ -24,24 +19,22 @@ function load_env($file) {
         $key = trim($key);
         $value = trim($value);
         
-        if (!empty($key)) {
+        if (!empty($key) && !isset($_ENV[$key])) {
             $_ENV[$key] = $value;
         }
     }
 }
 
-load_env($env_file);
-
-// Database Configuration
-define('DB_HOST', $_ENV['DB_HOST'] ?? 'localhost');
-define('DB_USER', $_ENV['DB_USER'] ?? 'root');
-define('DB_PASSWORD', $_ENV['DB_PASSWORD'] ?? '');
-define('DB_NAME', $_ENV['DB_NAME'] ?? 'english_portal');
+// Database Configuration (from environment or .env)
+define('DB_HOST', getenv('DB_HOST') ?: $_ENV['DB_HOST'] ?? 'localhost');
+define('DB_USER', getenv('DB_USER') ?: $_ENV['DB_USER'] ?? 'root');
+define('DB_PASSWORD', getenv('DB_PASSWORD') ?: $_ENV['DB_PASSWORD'] ?? '');
+define('DB_NAME', getenv('DB_NAME') ?: $_ENV['DB_NAME'] ?? 'english_portal');
 
 // Application Configuration
-define('APP_ENV', $_ENV['APP_ENV'] ?? 'production');
-define('APP_DEBUG', $_ENV['APP_DEBUG'] === 'true' ? true : false);
-define('SECURE_PASSWORD_HASHING', $_ENV['SECURE_PASSWORD_HASHING'] === 'true' ? true : false);
+define('APP_ENV', getenv('APP_ENV') ?: $_ENV['APP_ENV'] ?? 'production');
+define('APP_DEBUG', (getenv('APP_DEBUG') ?: $_ENV['APP_DEBUG'] ?? 'false') === 'true' ? true : false);
+define('SECURE_PASSWORD_HASHING', (getenv('SECURE_PASSWORD_HASHING') ?: $_ENV['SECURE_PASSWORD_HASHING'] ?? 'true') === 'true' ? true : false);
 
 // Error reporting based on environment
 if (APP_DEBUG) {
