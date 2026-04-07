@@ -1,6 +1,7 @@
-# Database configuration (IMPORTANT)
-config.php
+# Environment configuration (IMPORTANT - has secrets!)
 .env
+.env.local
+.env.*.local
 
 # XAMPP/OS specific files
 Thumbs.db
