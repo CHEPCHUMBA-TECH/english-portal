@@ -1,3 +1,5 @@
 <?php
-echo "Welcome to my portal!";
+// Redirect to login page
+header("Location: login.php");
+exit();
 ?>
