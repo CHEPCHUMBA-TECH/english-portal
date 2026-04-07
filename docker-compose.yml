@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: english-portal
+    ports:
+      - "8080:80"
+    environment:
+      - DB_HOST=db
+      - DB_USER=portal_user
+      - DB_PASSWORD=password123
+      - DB_NAME=english_portal
+      - APP_ENV=development
+      - APP_DEBUG=true
+      - SECURE_PASSWORD_HASHING=true
+    depends_on:
+      - db
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - english-portal-network
+
+  db:
+    image: mariadb:10.4
+    container_name: english-portal-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=english_portal
+      - MYSQL_USER=portal_user
+      - MYSQL_PASSWORD=password123
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./english_portal.sql:/docker-entrypoint-initdb.d/init.sql
+      - db-data:/var/lib/mysql
+    networks:
+      - english-portal-network
+
+volumes:
+  db-data:
+
+networks:
+  english-portal-network:
+    driver: bridge
