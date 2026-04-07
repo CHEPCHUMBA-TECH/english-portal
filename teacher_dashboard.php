@@ -1,26 +1,12 @@
 <?php
 session_start();
-
-// Simulate a logged-in teacher (replace with actual login check)
-$_SESSION['user_id'] = 5;
-$_SESSION['username'] = "Claudia";
-$_SESSION['user_role'] = "teacher";
+require_once 'config.php';
+require_once 'db.php';
 
 // Redirect if not a teacher
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'teacher') {
     header("Location: login.php");
     exit();
-}
-
-// Database connection
-$host = "localhost";
-$dbuser = "root";
-$dbpass = "";
-$dbname = "english_portal";
-
-$conn = new mysqli($host, $dbuser, $dbpass, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
 }
 
 // Fetch students

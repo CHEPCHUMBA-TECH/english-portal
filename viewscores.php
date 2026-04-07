@@ -1,21 +1,12 @@
 <?php
 session_start();
+require_once 'config.php';
+require_once 'db.php';
 
 // Check if teacher is logged in
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'teacher') {
     header("Location: login.php");
     exit();
-}
-
-// Database connection
-$host = "localhost";
-$dbuser = "root";
-$dbpass = "";
-$dbname = "english_portal";  // Make sure this matches your database name
-
-$conn = new mysqli($host, $dbuser, $dbpass, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
 }
 
 // Build student filter

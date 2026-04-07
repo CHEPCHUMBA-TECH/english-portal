@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once 'config.php';
+require_once 'db.php';
 
 // Only teachers can access this page
 if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'teacher'){
@@ -7,24 +9,27 @@ if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'teacher'){
     exit();
 }
 
-// Database connection
-$host = "localhost";
-$dbuser = "root";
-$dbpass = "";
-$dbname = "english_portal"; 
-$conn = new mysqli($host, $dbuser, $dbpass, $dbname);
-if($conn->connect_error){
-    die("Connection failed: " . $conn->connect_error);
-}
-
 // Handle form submission
 if(isset($_POST['update'])){
-    $username = $conn->real_escape_string($_POST['username']);
-    $password = $conn->real_escape_string($_POST['password']);
+    $username = $_POST['username'];
+    $password = $_POST['password'];
     $teacher_id = $_SESSION['user_id'];
 
-    $conn->query("UPDATE users SET username='$username', password='$password' WHERE id=$teacher_id AND role='teacher'");
-    $message = "Profile updated successfully!";
+    // Hash password if enabled
+    if (SECURE_PASSWORD_HASHING) {
+        $password = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+    }
+
+    // Use prepared statement to prevent SQL injection
+    $stmt = $conn->prepare("UPDATE users SET username=?, password=? WHERE id=? AND role='teacher'");
+    if ($stmt) {
+        $stmt->bind_param("ssi", $username, $password, $teacher_id);
+        $stmt->execute();
+        $stmt->close();
+        $message = "Profile updated successfully!";
+    } else {
+        $message = "Error: " . $conn->error;
+    }
 }
 
 // Fetch current teacher info

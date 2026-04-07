@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once 'config.php';
+require_once 'db.php';
 
 // Check if teacher is logged in
 if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'teacher'){
@@ -7,30 +9,25 @@ if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'teacher'){
     exit();
 }
 
-// Database connection
-$host = "localhost";
-$dbuser = "root";
-$dbpass = "";
-$dbname = "english_portal"; // your database
-$conn = new mysqli($host, $dbuser, $dbpass, $dbname);
-if($conn->connect_error){
-    die("Connection failed: " . $conn->connect_error);
-}
-
 // Handle form submission
 if(isset($_POST['submit'])){
-    $module = $conn->real_escape_string($_POST['module']);
-    $question = $conn->real_escape_string($_POST['question']);
-    $keywords = $conn->real_escape_string($_POST['keywords']);
+    $module = $_POST['module'];
+    $question = $_POST['question'];
+    $keywords = $_POST['keywords'];
     $max_score = intval($_POST['max_score']);
 
-    $sql = "INSERT INTO content (module, question, keywords, max_score) 
-            VALUES ('$module', '$question', '$keywords', $max_score)";
-
-    if($conn->query($sql) === TRUE){
-        $message = "Exercise added successfully!";
-    } else {
+    // Use prepared statement to prevent SQL injection
+    $stmt = $conn->prepare("INSERT INTO content (module, question, keywords, max_score) VALUES (?, ?, ?, ?)");
+    if (!$stmt) {
         $message = "Error: " . $conn->error;
+    } else {
+        $stmt->bind_param("sssi", $module, $question, $keywords, $max_score);
+        if($stmt->execute()){
+            $message = "Exercise added successfully!";
+        } else {
+            $message = "Error: " . $stmt->error;
+        }
+        $stmt->close();
     }
 }
 

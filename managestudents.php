@@ -1,6 +1,8 @@
 
 <?php
 session_start();
+require_once 'config.php';
+require_once 'db.php';
 
 // Only teachers can access
 if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'teacher'){
@@ -8,20 +10,15 @@ if(!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'teacher'){
     exit();
 }
 
-// Database connection
-$host = "localhost";
-$dbuser = "root";
-$dbpass = "";
-$dbname = "english_portal"; 
-$conn = new mysqli($host, $dbuser, $dbpass, $dbname);
-if($conn->connect_error){
-    die("Connection failed: " . $conn->connect_error);
-}
-
 // Handle delete
 if(isset($_GET['delete_id'])){
     $id = intval($_GET['delete_id']);
-    $conn->query("DELETE FROM users WHERE id=$id AND role='student'");
+    $stmt = $conn->prepare("DELETE FROM users WHERE id=? AND role='student'");
+    if ($stmt) {
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
+    }
     header("Location: managestudents.php");
     exit();
 }
