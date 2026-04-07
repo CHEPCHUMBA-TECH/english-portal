@@ -1,20 +1,32 @@
 <?php
-// DB.php - database connection for your English portal
+/**
+ * Database Connection
+ * Uses environment configuration from config.php
+ */
 
-// Database credentials
-$servername = "localhost";  // Usually "localhost" for XAMPP
-$username = "root";         // Default MySQL username in XAMPP
-$password = "";             // Default MySQL password in XAMPP (usually empty)
-$dbname = "english_portal"; // The database you created in phpMyAdmin
+// Load configuration
+require_once __DIR__ . '/config.php';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Create connection with credentials from environment
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
 // Check connection
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    // Log error securely
+    error_log("Database Connection Error: " . $conn->connect_error);
+    
+    if (APP_DEBUG) {
+        die("Connection failed: " . $conn->connect_error);
+    } else {
+        die("Database connection failed. Please contact support.");
+    }
 }
 
-// Optional: for testing you can uncomment
-// echo "Database connected successfully!";
+// Set charset to utf8mb4
+$conn->set_charset("utf8mb4");
+
+// Optional: for testing in debug mode
+if (APP_DEBUG) {
+    // echo "Database connected successfully!";
+}
 ?>

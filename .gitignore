@@ -1,0 +1,11 @@
+# Database configuration (IMPORTANT)
+config.php
+.env
+
+# XAMPP/OS specific files
+Thumbs.db
+.DS_Store
+
+# If using Composer
+/vendor/
+composer.lock
