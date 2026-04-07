@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: english-portal
+    env: php
+    region: oregon
+    plan: free
+    
+    # Commands
+    buildCommand: "true"  # No build needed for PHP
+    startCommand: ""      # Uses default PHP/Apache
+    
+    # Auto-deploy from GitHub
+    autoDeployBranch: main
+    
+    # Environment variables - will be set in Render dashboard
+    # Do NOT expose sensitive values here, use Render dashboard instead
+    
+    # Health check
+    healthCheckPath: /login.php
+    
+    # Ignore files in deployment
+    ignoreFiles:
+      - .gitignore
+      - migrate_passwords.php
+      - testdb.php
+      - check_errors.php
+
+# Note: Configure these in Render Dashboard instead:
+# - DB_HOST
+# - DB_USER
+# - DB_PASSWORD
+# - DB_NAME
+# - APP_ENV
+# - APP_DEBUG
+# - SECURE_PASSWORD_HASHING
